@@ -9,7 +9,8 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
 
     N = mx_forward_facing_normal(N, V);
 
-    vec3 Y = normalize(cross(N, X));
+    X = normalize(X - dot(X, N) * N);
+    vec3 Y = cross(N, X);
     vec3 H = normalize(L + V);
 
     float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);
@@ -75,7 +76,7 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     {
         float avgF0 = dot(color0, vec3(1.0 / 3.0));
         fd.ior = vec3(mx_f0_to_ior(avgF0));
-        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd) * color0 * weight;
+        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd, color0) * weight;
     }
 }
 

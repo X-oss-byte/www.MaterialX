@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderTranslator.h>
@@ -44,7 +44,7 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
                 origOutputs.insert(connectedOutput);
             }
             else if (shaderInput->hasValueString())
-            { 
+            {
                 input->setValueString(shaderInput->getValueString());
             }
             else
@@ -155,7 +155,7 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     const string& sourceCategory = shader->getCategory();
     if (sourceCategory == destCategory)
     {
-        return;
+        throw Exception("The source shader \"" + shader->getNamePath() + "\" category is already \"" + destCategory + "\"");
     }
 
     DocumentPtr doc = shader->getDocument();
@@ -181,9 +181,7 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
 
 void ShaderTranslator::translateAllMaterials(DocumentPtr doc, const string& destCategory)
 {
-    vector<TypedElementPtr> materialNodes;
-    std::unordered_set<ElementPtr> shaderOutputs;
-    findRenderableMaterialNodes(doc, materialNodes, false, shaderOutputs);
+    vector<TypedElementPtr> materialNodes = findRenderableMaterialNodes(doc);
     for (auto elem : materialNodes)
     {
         NodePtr materialNode = elem->asA<Node>();

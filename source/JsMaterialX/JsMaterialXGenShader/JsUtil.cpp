@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <JsMaterialX/Helpers.h>
@@ -18,8 +18,7 @@ namespace mx = MaterialX;
 mx::ElementPtr findRenderableElement(mx::DocumentPtr doc)
 {
     mx::StringVec renderablePaths;
-    std::vector<mx::TypedElementPtr> elems;
-    mx::findRenderableElements(doc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(doc);
 
     for (mx::TypedElementPtr elem : elems)
     {
@@ -50,6 +49,5 @@ EMSCRIPTEN_BINDINGS(Util)
 {
     BIND_FUNC("isTransparentSurface", mx::isTransparentSurface, 1, 2, mx::ElementPtr, const std::string&);
 
-    ems::function("findRenderableElements", &mx::findRenderableElements);
     ems::function("findRenderableElement", &findRenderableElement);
 }

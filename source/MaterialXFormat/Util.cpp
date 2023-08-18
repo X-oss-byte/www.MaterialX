@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXFormat/Util.h>
@@ -220,6 +220,21 @@ FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
     }
 
     return searchPath;
+}
+
+FileSearchPath getDefaultDataSearchPath()
+{
+    const FilePath REQUIRED_LIBRARY_FOLDER("libraries/targets");
+    FilePath currentPath = FilePath::getModulePath();
+    while (!currentPath.isEmpty())
+    {
+        if ((currentPath / REQUIRED_LIBRARY_FOLDER).exists())
+        {
+            return FileSearchPath(currentPath);
+        }
+        currentPath = currentPath.getParentPath();
+    }
+    return FileSearchPath();    
 }
 
 MATERIALX_NAMESPACE_END

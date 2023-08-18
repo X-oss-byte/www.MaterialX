@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXCore/Material.h>
@@ -70,11 +70,11 @@ void checkImplementations(mx::GenContext& context,
                           const mx::StringSet& generatorSkipNodeDefs,
                           unsigned int expectedSkipCount)
 {
-    mx::DocumentPtr doc = mx::createDocument();
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
     loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
 
     const std::string& target = shadergen.getTarget();
@@ -94,7 +94,6 @@ void checkImplementations(mx::GenContext& context,
         "arrayappend",
         "displacement",
         "volume",
-        "blackbody",
         "curveadjust",
         "conical_edf",
         "measured_edf",
@@ -280,7 +279,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     loadLibraries({ "libraries/targets", "libraries/stdlib" }, searchPath, doc);
 
     const std::string exampleName = "unique_names";
@@ -478,7 +477,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    loadLibraries({ "libraries" }, _libSearchPath, _dependLib, _skipLibraryFiles);
+    loadLibraries({ "libraries" }, _searchPath, _dependLib, _skipLibraryFiles);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -603,10 +602,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
     // Load in all documents to test
     mx::StringVec errorLog;
-    mx::FileSearchPath searchPath(_libSearchPath);
     for (const auto& testRoot : _testRootPaths)
     {
-        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
+        mx::loadDocuments(testRoot, _searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
                           nullptr, &errorLog);
     }
     CHECK(errorLog.empty());
@@ -627,7 +625,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Create our context
     mx::GenContext context(_shaderGenerator);
     context.getOptions() = generateOptions;
-    context.registerSourceCodeSearchPath(_srcSearchPath);
+    context.registerSourceCodeSearchPath(_searchPath);
 
     // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(_dependLib, context);
@@ -648,6 +646,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     size_t documentIndex = 0;
     for (const auto& doc : _documents)
     {
+        // Apply optional preprocessing.
+        preprocessDocument(doc);
+
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
         // colliding with implementations in previous test cases.
@@ -684,7 +685,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         std::vector<mx::TypedElementPtr> elements;
         try
         {
-            mx::findRenderableElements(doc, elements);
+            elements = mx::findRenderableElements(doc);
         }
         catch (mx::Exception& e)
         {
@@ -764,7 +765,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     {
                         const std::string elementNameSuffix(bindingContextUsed ? LAYOUT_SUFFIX : mx::EMPTY_STRING);
 
-                        mx::FilePath path = element->getActiveSourceUri();
+                        mx::FilePath path = doc->getSourceUri();
                         if (!path.isEmpty())
                         {
                             std::string testFileName = path[path.size() - 1];
@@ -780,7 +781,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         }
                         else
                         {
-                            path = mx::FilePath::getCurrentPath();
+                            mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+                            path = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
                         }
 
                         std::vector<mx::FilePath> sourceCodePaths;
@@ -868,8 +870,7 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tRender Size: " << renderSize[0] << "," << renderSize[1] << std::endl;
     output << "\tSave Images: " << saveImages << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
-    output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
-    output << "\tShaded Geometry: " << shadedGeometry.asString() << std::endl;
+    output << "\tRender Geometry: " << renderGeometry.asString() << std::endl;
     output << "\tEnable Direct Lighting: " << enableDirectLighting << std::endl;
     output << "\tEnable Indirect Lighting: " << enableIndirectLighting << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
@@ -897,8 +898,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string DUMP_UNIFORMS_AND_ATTRIBUTES_STRING("dumpUniformsAndAttributes");
     const std::string CHECK_IMPL_COUNT_STRING("checkImplCount");
     const std::string DUMP_GENERATED_CODE_STRING("dumpGeneratedCode");
-    const std::string UNSHADED_GEOMETRY_STRING("unShadedGeometry");
-    const std::string SHADED_GEOMETRY_STRING("shadedGeometry");
+    const std::string RENDER_GEOMETRY_STRING("renderGeometry");
     const std::string ENABLE_DIRECT_LIGHTING("enableDirectLighting");
     const std::string ENABLE_INDIRECT_LIGHTING("enableIndirectLighting");
     const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
@@ -912,8 +912,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
-    unShadedGeometry = SPHERE_GEOMETRY;
-    shadedGeometry = SPHERE_GEOMETRY;
+    renderGeometry = SPHERE_GEOMETRY;
     enableDirectLighting = true;
     enableIndirectLighting = true;
     enableReferenceQuality = false;
@@ -1048,13 +1047,9 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         dumpGeneratedCode = val->asA<bool>();
                     }
-                    else if (name == UNSHADED_GEOMETRY_STRING)
+                    else if (name == RENDER_GEOMETRY_STRING)
                     {
-                        unShadedGeometry = p->getValueString();
-                    }
-                    else if (name == SHADED_GEOMETRY_STRING)
-                    {
-                        shadedGeometry = p->getValueString();
+                        renderGeometry = p->getValueString();
                     }
                     else if (name == ENABLE_DIRECT_LIGHTING)
                     {

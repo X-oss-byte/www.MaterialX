@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
@@ -139,8 +139,9 @@ TEST_CASE("Node", "[node]")
 TEST_CASE("Flatten", "[nodegraph]")
 {
     // Read an example containing graph-based custom nodes.
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/shader/surface.mtlx");
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/shader/surface.mtlx", searchPath);
     REQUIRE(doc->validate());
 
     // Count root-level, nested, and custom nodes.
@@ -174,8 +175,8 @@ TEST_CASE("Flatten", "[nodegraph]")
 
 TEST_CASE("Inheritance", "[nodedef]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
     mx::loadLibraries({ "libraries" }, searchPath, doc);
     REQUIRE(doc->validate());
     auto nodedef = doc->getNodeDef("ND_standard_surface_surfaceshader");
@@ -559,13 +560,12 @@ TEST_CASE("Organization", "[nodegraph]")
 
 TEST_CASE("Tokens", "[nodegraph]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
-    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/texture/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
 
-    mx::readFromXmlFile(doc, "tokenGraph.mtlx", searchPath);
-    doc->validate();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/texture/tokenGraph.mtlx", searchPath);
 
     mx::StringVec graphNames = { "Tokenized_Image_2k_png", "Tokenized_Image_4k_jpg" };
     mx::StringVec resolutionStrings = { "2k", "4k" };
@@ -597,13 +597,13 @@ TEST_CASE("Tokens", "[nodegraph]")
 
 TEST_CASE("Node Definition Creation", "[nodedef]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
-    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/definition/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
 
-    mx::readFromXmlFile(doc, "definition_from_nodegraph.mtlx", searchPath);
-    REQUIRE(doc->validate());
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/definition/definition_from_nodegraph.mtlx", searchPath);
+    doc->importLibrary(stdlib);
 
     mx::NodeGraphPtr graph = doc->getNodeGraph("test_colorcorrect");
     REQUIRE(graph);
@@ -641,7 +641,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
 
         // Check declaration was set up properly
-        mx::ConstNodeDefPtr decl = newGraph->getDeclaration();
+        mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
 
         // Arbitrarily add all unconnected inputs as interfaces
@@ -721,7 +721,5 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         }
         REQUIRE(findDefault);
     }
-
     REQUIRE(doc->validate());
-    mx::writeToXmlFile(doc, "definition_from_nodegraph_out.mtlx");
 }

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_UTIL
@@ -44,6 +44,9 @@ MX_CORE_API string replaceSubstrings(string str, const StringMap& stringMap);
 
 /// Return a copy of the given string with letters converted to lower case.
 MX_CORE_API string stringToLower(string str);
+
+/// Return true if the given string starts with the given prefix.
+MX_CORE_API bool stringStartsWith(const string& str, const string& prefix);
 
 /// Return true if the given string ends with the given suffix.
 MX_CORE_API bool stringEndsWith(const string& str, const string& suffix);

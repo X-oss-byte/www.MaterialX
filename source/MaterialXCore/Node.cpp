@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Node.h>
@@ -159,24 +159,20 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         OutputPtr output;
         if (connectedInput)
         {
-            InputPtr interfaceInput = nullptr;
-            if (connectedInput->hasInterfaceName())
+            InputPtr interfaceInput = connectedInput->getInterfaceInput();
+            if (interfaceInput)
             {
-                interfaceInput = connectedInput->getInterfaceInput();
-                if (interfaceInput)
-                {
-                    outputName = interfaceInput->getOutputString();
-                    output = interfaceInput->getConnectedOutput();
-                }
+                output = interfaceInput->getConnectedOutput();
+                outputName = interfaceInput->getOutputString();
             }
-            if (!interfaceInput)
+            else
             {
                 output = connectedInput->getConnectedOutput();
             }
         }
         if (output)
         {
-            if (connectedInput || 
+            if (connectedInput ||
                 output->getParent() == output->getDocument())
             {
                 if (!output->getOutputString().empty())
@@ -228,6 +224,11 @@ bool Node::validate(string* message) const
         bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
         validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
     }
+    else
+    {
+        bool categoryDeclared = !getDocument()->getMatchingNodeDefs(getCategory()).empty();
+        validateRequire(!categoryDeclared, res, message, "Node interface doesn't support this output type");
+    }
 
     return InterfaceElement::validate(message) && res;
 }
@@ -259,7 +260,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
         using PortElementVec = vector<PortElementPtr>;
         std::vector<NodePtr> processNodeVec;
         std::unordered_map<NodePtr, NodeGraphPtr> graphImplMap;
-        std::unordered_map<NodePtr, ConstNodeDefPtr> declarationMap;
+        std::unordered_map<NodePtr, ConstInterfaceElementPtr> declarationMap;
         std::unordered_map<NodePtr, PortElementVec> downstreamPortMap;
         for (NodePtr node : nodeQueue)
         {
@@ -348,7 +349,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         }
                         else
                         {
-                            ConstNodeDefPtr declaration = declarationMap[processNode];
+                            ConstInterfaceElementPtr declaration = declarationMap[processNode];
                             InputPtr declInput = declaration ? declaration->getActiveInput(destInput->getInterfaceName()) : nullptr;
                             if (declInput)
                             {
@@ -415,9 +416,17 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         size_t connectionCount = 0;
         for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            if (child->getUpstreamEdge(i))
+            Edge upstreamEdge = child->getUpstreamEdge(i);
+            if (upstreamEdge)
             {
-                connectionCount++;
+                if (upstreamEdge.getUpstreamElement())
+                {
+                    ElementPtr elem = upstreamEdge.getUpstreamElement()->getParent();
+                    if (elem == child->getParent())
+                    {
+                        connectionCount++;
+                    }
+                }
             }
         }
 
@@ -471,7 +480,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
     return result;
 }
 
-NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string &namePrefix)
+NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix)
 {
     string geomNodeName = namePrefix + "_" + geomPropDef->getName();
     NodePtr geomNode = getNode(geomNodeName);
@@ -740,16 +749,31 @@ bool NodeGraph::validate(string* message) const
         validateRequire(nodeDef != nullptr, res, message, "NodeGraph implementation refers to non-existent NodeDef");
         if (nodeDef)
         {
-            validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            vector<OutputPtr> graphOutputs = getOutputs();
+            vector<OutputPtr> nodeDefOutputs = nodeDef->getActiveOutputs();
+            validateRequire(graphOutputs.size() == nodeDefOutputs.size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            if (graphOutputs.size() == 1 && nodeDefOutputs.size() == 1)
+            {
+                validateRequire(graphOutputs[0]->getType() == nodeDefOutputs[0]->getType(), res, message, "NodeGraph implementation has a different output type than its NodeDef");
+            }
         }
     }
 
     return GraphElement::validate(message) && res;
 }
 
-ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
+ConstInterfaceElementPtr NodeGraph::getDeclaration(const string&) const
 {
-    return getNodeDef();
+    ConstNodeDefPtr nodeDef = getNodeDef();
+    if (nodeDef)
+    {
+        return nodeDef;
+    }
+    if (!hasNodeDefString())
+    {
+        return getSelf()->asA<InterfaceElement>();
+    }
+    return nullptr;
 }
 
 //

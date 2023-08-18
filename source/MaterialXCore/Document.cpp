@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Document.h>
@@ -153,7 +153,7 @@ class Document::Cache
 
 Document::Document(ElementPtr parent, const string& name) :
     GraphElement(parent, CATEGORY, name),
-    _cache(std::unique_ptr<Cache>(new Cache))
+    _cache(std::make_unique<Cache>())
 {
 }
 

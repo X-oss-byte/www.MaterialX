@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERGENERATOR_H
@@ -79,7 +79,7 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitLibraryInclude(const FilePath& filename, GenContext& context, ShaderStage& stage) const;
 
     /// Add a value.
-    template<typename T>
+    template <typename T>
     void emitValue(const T& value, ShaderStage& stage) const
     {
         stage.addValue<T>(value);
@@ -92,7 +92,8 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Add the function call for a single node.
-    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope = true) const;
+    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+    [[deprecated]] virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const;
 
     /// Add all function calls for a graph. If a classification mask is given only functions for
     /// nodes matching this classification will be emitted.
@@ -150,6 +151,9 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Register a shader node implementation for a given implementation element name
     void registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator);
+    
+    /// Register a shader node implementation for a given set of implementation element names
+    void registerImplementation(const StringVec& nameVec, CreatorFunction<ShaderNodeImpl> creator);
 
     /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
@@ -188,10 +192,10 @@ class MX_GENSHADER_API ShaderGenerator
     }
 
     /// Register metadata that should be exported to the generated shaders.
-    /// Supported metadata includes standard UI attributes like "uiname", "uifolder", 
-    /// "uimin", "uimax", etc. 
+    /// Supported metadata includes standard UI attributes like "uiname", "uifolder",
+    /// "uimin", "uimax", etc.
     /// But it is also extendable by defining custom attributes using AttributeDefs.
-    /// Any AttributeDef in the given document with exportable="true" will be 
+    /// Any AttributeDef in the given document with exportable="true" will be
     /// exported as shader metadata when found on nodes during shader generation.
     /// Derived shader generators may override this method to change the registration.
     /// Applications must explicitly call this method before shader generation to enable

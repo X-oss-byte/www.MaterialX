@@ -1,12 +1,12 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef GENOSL_H
 #define GENOSL_H
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -19,9 +19,8 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     OslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const std::vector<mx::FilePath>& testRootPaths,
-                             const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath,
-                             const mx::FilePath& logFilePath, bool writeShadersToDisk) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
+                             const mx::FileSearchPath& searchPath, const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, searchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override

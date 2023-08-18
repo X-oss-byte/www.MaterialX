@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERNODE_H
@@ -36,7 +36,6 @@ using ShaderNodePtr = shared_ptr<class ShaderNode>;
 /// A vector of ShaderInput pointers
 using ShaderInputVec = vector<ShaderInput*>;
 
-
 /// Metadata to be exported to generated shader.
 struct MX_GENSHADER_API ShaderMetadata
 {
@@ -47,12 +46,13 @@ struct MX_GENSHADER_API ShaderMetadata
         name(n),
         type(t),
         value(v)
-    {}
+    {
+    }
 };
 using ShaderMetadataVec = vector<ShaderMetadata>;
 using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 
-/// @class ShaderMetadataRegistry 
+/// @class ShaderMetadataRegistry
 /// A registry for metadata that will be exported to the generated shader
 /// if found on nodes and inputs during shader generation.
 class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
@@ -107,7 +107,6 @@ class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
 };
 
 using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
-
 
 /// Flags set on shader ports.
 class MX_GENSHADER_API ShaderPortFlag
@@ -328,7 +327,7 @@ class MX_GENSHADER_API ShaderNode
     /// Flags for classifying nodes into different categories.
     class Classification
     {
-    public:
+      public:
         // Node classes
         static const uint32_t TEXTURE       = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
         static const uint32_t CLOSURE       = 1 << 1;  /// Any node that represents light integration
@@ -358,38 +357,13 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t SAMPLE2D      = 1 << 20; /// Can be sampled in 2D (uv space)
         static const uint32_t SAMPLE3D      = 1 << 21; /// Can be sampled in 3D (position)
         static const uint32_t GEOMETRIC     = 1 << 22; /// Geometric input
-    };
-
-    /// @struct ScopeInfo
-    /// Information on source code scope for the node.
-    ///
-    /// @todo: Refactor the scope handling, using scope id's instead
-    ///
-    struct ScopeInfo
-    {
-        enum Type
-        {
-            UNKNOWN,
-            GLOBAL,
-            SINGLE,
-            MULTIPLE
-        };
-
-        ScopeInfo() : type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
-
-        void merge(const ScopeInfo& fromScope);
-        void adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask);
-        bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
-
-        Type type;
-        ShaderNode* conditionalNode;
-        uint32_t conditionBitmask;
-        uint32_t fullConditionMask;
+        static const uint32_t DOT           = 1 << 23; /// A dot node
     };
 
     static const ShaderNodePtr NONE;
 
     static const string CONSTANT;
+    static const string DOT;
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
@@ -411,7 +385,7 @@ class MX_GENSHADER_API ShaderNode
     ShaderNode(const ShaderGraph* parent, const string& name);
 
     /// Create a new node from a nodedef.
-    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
+    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef,
                                 GenContext& context);
 
     /// Create a new node from a node implementation.
@@ -465,21 +439,6 @@ class MX_GENSHADER_API ShaderNode
     {
         return *_impl;
     }
-
-    /// Return the scope info for this node.
-    ScopeInfo& getScopeInfo()
-    {
-        return _scopeInfo;
-    }
-
-    /// Return the scope info for this node.
-    const ScopeInfo& getScopeInfo() const
-    {
-        return _scopeInfo;
-    }
-
-    /// Returns true if this node is only referenced by a conditional.
-    bool referencedConditionally() const;
 
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
@@ -550,7 +509,6 @@ class MX_GENSHADER_API ShaderNode
 
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
-    ScopeInfo _scopeInfo;
 
     friend class ShaderGraph;
 };

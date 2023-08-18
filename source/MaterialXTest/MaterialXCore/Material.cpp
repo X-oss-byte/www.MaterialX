@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h>
@@ -61,12 +61,9 @@ TEST_CASE("Material", "[material]")
 
 TEST_CASE("Material Discovery", "[material]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-
-    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath(currentPath / mx::FilePath("resources/Materials/TestSuite"));
-    mx::FilePath filename = "stdlib/materials/material_node_discovery.mtlx";
-    mx::readFromXmlFile(doc, filename, searchPath);
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/materials/material_node_discovery.mtlx", searchPath);
 
     // 1. Find all materials referenced by material assignments
     //    which are found in connected nodegraphs

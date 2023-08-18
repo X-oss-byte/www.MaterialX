@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -20,5 +20,7 @@ void bindPyShaderGenerator(py::module& mod)
         .def("setColorManagementSystem", &mx::ShaderGenerator::setColorManagementSystem)
         .def("getColorManagementSystem", &mx::ShaderGenerator::getColorManagementSystem)
         .def("setUnitSystem", &mx::ShaderGenerator::setUnitSystem)
-        .def("getUnitSystem", &mx::ShaderGenerator::getUnitSystem);
+        .def("getUnitSystem", &mx::ShaderGenerator::getUnitSystem)
+        .def("getTokenSubstitutions", &mx::ShaderGenerator::getTokenSubstitutions)
+        .def("registerShaderMetadata", &mx::ShaderGenerator::registerShaderMetadata);
 }

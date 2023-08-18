@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRenderOsl/OslRenderer.h>
@@ -46,7 +46,7 @@ void OslRenderer::setSize(unsigned int width, unsigned int height)
     }
 }
 
-void OslRenderer::initialize()
+void OslRenderer::initialize(RenderContextHandle)
 {
     if (_oslIncludePath.isEmpty())
     {
@@ -143,8 +143,14 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
                                    " does not include proper tokens for rendering");
     }
 
+    // Set the working directory for rendering.
+    FileSearchPath searchPath = getDefaultDataSearchPath();
+    FilePath rootPath = searchPath.isEmpty() ? FilePath() : searchPath[0];
+    FilePath origWorkingPath = FilePath::getCurrentPath();
+    rootPath.setCurrentPath();
+
     // Write scene file
-    const string sceneFileName(shaderPath + "_scene.xml");
+    const string sceneFileName("scene_template.xml");
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
     if (shaderFileStream.is_open())
@@ -177,6 +183,9 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
             break;
         }
     }
+
+    // Restore the working directory after rendering.
+    origWorkingPath.setCurrentPath();
 
     // Report errors on a non-zero return value.
     if (returnValue)
@@ -309,7 +318,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     }
 }
 
-void OslRenderer::createProgram(const ShaderPtr shader)
+void OslRenderer::createProgram(ShaderPtr shader)
 {
     StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
     createProgram(stages);

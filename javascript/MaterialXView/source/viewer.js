@@ -1,6 +1,6 @@
 //
-// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 import * as THREE from 'three';
@@ -749,6 +749,9 @@ export class Material
         var startTranspCheckTime = performance.now();
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
+        // Always set to reduced as the parsing of uniforms can be very expensive in WebGL
+        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
+
         if (logDetailedTime)
             console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
 

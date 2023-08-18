@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -17,6 +17,7 @@ void bindPyXmlIo(py::module& mod)
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
         .def_readwrite("readComments", &mx::XmlReadOptions::readComments)
+        .def_readwrite("readNewlines", &mx::XmlReadOptions::readNewlines)
         .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
         .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 

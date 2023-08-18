@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GENOPTIONS_H
@@ -70,7 +70,7 @@ enum HwTransmissionRenderMethod
     TRANSMISSION_OPACITY,
 };
 
-/// @class GenOptions 
+/// @class GenOptions
 /// Class holding options to configure shader generation.
 class MX_GENSHADER_API GenOptions
 {
@@ -90,6 +90,7 @@ class MX_GENSHADER_API GenOptions
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
+        hwImplicitBitangents(true),
         emitColorTransforms(true)
     {
     }
@@ -100,7 +101,7 @@ class MX_GENSHADER_API GenOptions
     //  - graph flattening or not
 
     /// Sets the type of shader interface to be generated
-    int shaderInterfaceType;
+    ShaderInterfaceType shaderInterfaceType;
 
     /// If true the y-component of texture coordinates used for sampling
     /// file textures will be flipped before sampling. This can be used if
@@ -117,8 +118,8 @@ class MX_GENSHADER_API GenOptions
     /// Shader fragments will be generated to transform
     /// input distance values to the given unit.
     string targetDistanceUnit;
-    
-    /// Sets whether to include upstream dependencies 
+
+    /// Sets whether to include upstream dependencies
     /// for the element to generate a shader for.
     bool addUpstreamDependencies;
 
@@ -173,9 +174,12 @@ class MX_GENSHADER_API GenOptions
     /// Defaults to false.
     bool hwWriteAlbedoTable;
 
-    /// Enable emitting colorspace transform code if a color management 
-    /// system is defined.
-    /// Defaults to true.
+    /// Calculate fallback bitangents from existing normals and tangents
+    /// inside the bitangent node.
+    bool hwImplicitBitangents;
+
+    /// Enable emitting colorspace transform code if a color management
+    /// system is defined. Defaults to true.
     bool emitColorTransforms;
 };
 

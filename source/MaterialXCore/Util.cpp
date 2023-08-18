@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Types.h>
@@ -125,6 +125,15 @@ string stringToLower(string str)
         return (char) std::tolower(c);
     });
     return str;
+}
+
+bool stringStartsWith(const std::string& str, const std::string& prefix)
+{
+    if (str.length() >= prefix.length())
+    {
+        return !str.compare(0, prefix.length(), prefix);
+    }
+    return false;
 }
 
 bool stringEndsWith(const string& str, const string& suffix)

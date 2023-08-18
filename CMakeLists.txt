@@ -43,6 +43,7 @@ option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
+option(MATERIALX_BUILD_GLTF "Build MaterialX / GLTF." ON)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -107,6 +108,7 @@ mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_TESTS)
+mark_as_advanced(MATERIALX_BUILD_GLTF)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
 mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
 mark_as_advanced(MATERIALX_LIBNAME_SUFFIX)
@@ -255,6 +257,11 @@ endif()
 # Add test subdirectory
 if(MATERIALX_BUILD_TESTS)
     add_subdirectory(source/MaterialXTest)
+endif()
+
+# Add GLTF 
+if (MATERIALX_BUILD_GLTF)
+    add_subdirectory(source/MaterialXglTF)
 endif()
 
 # Add Python subdirectories

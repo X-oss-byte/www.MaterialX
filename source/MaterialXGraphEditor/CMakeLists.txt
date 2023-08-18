@@ -84,6 +84,10 @@ if (APPLE)
     list(APPEND MATERIALX_LIBRARIES ${CORE_FOUNDATION})
 endif ()
 
+if (MATERIALX_BUILD_GLTF)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXglTF)
+endif()
+
 target_link_libraries(
     MaterialXGraphEditor
     PRIVATE

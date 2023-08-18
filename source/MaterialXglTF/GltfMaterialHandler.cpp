@@ -383,7 +383,8 @@ bool GltfMaterialHandler::save(const FilePath& filePath, std::ostream& logger)
     const string gltf_versionString = "2.0";
 	data->asset.generator = const_cast<char*>((new string("MaterialX " + mtlx_versionString + " to glTF " + gltf_versionString + " generator"))->c_str());;
     data->asset.version = const_cast<char*>((new string(gltf_versionString))->c_str());
-    data->asset.copyright = "Created via glTF translation utilities found here: https://github.com/kwokcb/glTF_MaterialX";
+    std::string *copyright = new string("Created via glTF translation utilities found here : https://github.com/kwokcb/glTF_MaterialX");
+    data->asset.copyright = const_cast<char*>((copyright)->c_str());
 
     // Scan for PBR shader nodes
     const string PBR_CATEGORY_STRING("gltf_pbr");

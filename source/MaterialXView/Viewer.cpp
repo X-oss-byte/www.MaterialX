@@ -689,19 +689,31 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     {
         m_process_events = false;
         mx::MaterialPtr material = getSelectedMaterial();
-        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" },
+                                                  { "gltf", "GLTF ASCII" }}, true);
 
         // Save document
         if (material && !filename.isEmpty())
         {
-            if (filename.getExtension() != mx::MTLX_EXTENSION)
+            if (filename.getExtension() == mx::EMPTY_STRING)
             {
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            mx::XmlWriteOptions writeOptions;
-            writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            if (filename.getExtension() == mx::MTLX_EXTENSION)
+            {
+                mx::XmlWriteOptions writeOptions;
+                writeOptions.elementPredicate = getElementPredicate();
+                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            }
+#ifdef MATERIALX_BUILD_GLTF
+            else
+            {
+                mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
+                std::stringstream log;
+                mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filename, material->getDocument(), log);
+            }
+#endif
 
             // Update material file name
             _materialFilename = filename;

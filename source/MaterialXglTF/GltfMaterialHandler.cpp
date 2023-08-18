@@ -4,6 +4,7 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXglTF/GltfMaterialHandler.h>
@@ -280,9 +281,7 @@ void GltfMaterialHandler::translateShaders(DocumentPtr doc, std::ostream& logger
     //
     const string TARGET_GLTF = "gltf_pbr";
     ShaderTranslatorPtr translator = ShaderTranslator::create();
-    vector<TypedElementPtr> materialNodes;
-    std::unordered_set<ElementPtr> shaderOutputs;
-    findRenderableMaterialNodes(doc, materialNodes, false, shaderOutputs);    
+    vector<TypedElementPtr> materialNodes = findRenderableMaterialNodes(doc);
     for (auto elem : materialNodes)
     {
         NodePtr materialNode = elem->asA<Node>();

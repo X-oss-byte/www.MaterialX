@@ -7,6 +7,9 @@ import sys, os, io, argparse
 import MaterialX as mx
 import MaterialX.PyMaterialXglTF as mx_gltf
 
+def skipLibraryElement(elem):
+    return not elem.hasSourceUri()
+
 def main():
     parser = argparse.ArgumentParser(description="MaterialX glTF converter")
     parser.add_argument(dest="inputFilename", help="Filename of the input document (glTF or MaterialX).")
@@ -47,7 +50,7 @@ def main():
         print('Converting MaterialX file:%s to glTF file: %s' % 
               (inputFilePath.asString(), outputFilePath.asString()))
         converted = utils.mtlx2glTF(handler, outputFilePath, doc, log)
-        print("Converted: " + converted)
+        print("- Converted: " + converted)
 
     # Convert from GLTF to MaterialX
     elif toMaterialX:
@@ -61,14 +64,30 @@ def main():
             print('Failed to load standard libraries: "', err, '"')
             sys.exit(-1)
 
+        outputFilePath = mx.FilePath()
         outputFilePath = inputFilePath
-        createAssignments = True
-        fullDefinition = False
         print('Converting glTF file:%s to MaterialX file: %s' % 
-              (inputFilePath.asString(), outputFilePath.asString()))
-        outputFilePath.addExtension('mtlx')
-        doc = utils.glTF2Mtlx(inputFilePath, stdlib, createAssignments, fullDefinition, log)
-        print("Converted: " + str(doc != None))
+              (inputFilePath.asString(), inputFilePath.asString()+".mtlx"))
+        
+        createAssignments = False
+        fullDefinition = False
+        handler.setDefinitions(stdlib)
+        handler.setGenerateAssignments(createAssignments)
+        handler.setGenerateFullDefinitions(fullDefinition)
+    
+        loadedMaterial = handler.load(inputFilePath, log)
+        print("- Loaded GLTF file: " + str(loadedMaterial))
+        doc = None
+        if loadedMaterial:
+            doc = handler.getMaterials() 
+        if doc:
+            # Filter out standard library elements
+            writeOptions = mx.XmlWriteOptions()
+            writeOptions.writeXIncludeEnable = False
+            writeOptions.elementPredicate = skipLibraryElement
+            mx.writeToXmlFile(doc, inputFilePath.asString()+".mtlx", writeOptions)
+
+        print("- Converted: " + str(doc != None))
 
     if log:
         print("Log" + '\n'.join(log))

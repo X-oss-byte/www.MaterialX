@@ -18,7 +18,7 @@ public:
     {
     }
 
-    bool load(const mx::FilePath& filePath, std::ostream& log) override
+    bool load(const mx::FilePath& filePath, mx::StringVec& log) override
     {
         PYBIND11_OVERLOAD_PURE(
             bool,
@@ -29,7 +29,7 @@ public:
         );
     }
 
-    bool save(const mx::FilePath& filePath, std::ostream& log) override
+    bool save(const mx::FilePath& filePath, mx::StringVec& log) override
     {
         PYBIND11_OVERLOAD_PURE(
             bool,

@@ -710,7 +710,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
             else
             {
                 mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
-                std::stringstream log;
+                mx::StringVec log;
                 mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filename, material->getDocument(), log);
             }
 #endif
@@ -1269,7 +1269,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 #ifdef MATERIALX_BUILD_GLTF
         if (filename.getExtension() == "gltf")
         {
-            std::stringstream log;
+            mx::StringVec log;
             doc = mx::GltfMaterialUtil::glTF2Mtlx(filename, libraries, true, true, log);
         }
         else

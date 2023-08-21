@@ -187,7 +187,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 #ifdef MATERIALX_BUILD_GLTF
             if (filename.getExtension() == "gltf")
             {
-                std::stringstream log;
+                mx::StringVec log;
                 doc = mx::GltfMaterialUtil::glTF2Mtlx(filename, _stdLib, false, false, log);
             }
             else
@@ -4225,7 +4225,7 @@ void Graph::writeText(std::string fileName, mx::FilePath filePath)
     else
     {
         mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
-        std::stringstream log;
+        mx::StringVec log;
         mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filePath, _graphDoc, log);
     }
 #endif

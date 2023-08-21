@@ -179,7 +179,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         }
     };
 
-    mx::DocumentPtr doc =  mx::createDocument()
+    mx::DocumentPtr doc = mx::createDocument();
     try
     {
         if (!filename.isEmpty())
@@ -194,13 +194,14 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 #endif
             {
                 doc = mx::createDocument();
-            mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-            doc->importLibrary(_stdLib);
-            std::string message;
-            if (!doc->validate(&message))
-            {
-                std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
-                std::cerr << message << std::endl;
+                mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+                doc->importLibrary(_stdLib);
+                std::string message;
+                if (!doc->validate(&message))
+                {
+                    std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
+                    std::cerr << message << std::endl;
+                }
             }
         }
     }

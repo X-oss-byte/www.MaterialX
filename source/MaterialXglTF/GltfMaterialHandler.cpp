@@ -460,9 +460,9 @@ bool GltfMaterialHandler::save(const FilePath& filePath, std::ostream& logger)
 
     // Set of image nodes.
     std::vector<cgltf_texture> textureList;
-    textureList.reserve(64);
+    textureList.resize(64);
     std::vector<cgltf_image> imageList;
-    imageList.reserve(64);
+    imageList.resize(64);
 
     size_t material_idx = 0;
     size_t imageIndex = 0;

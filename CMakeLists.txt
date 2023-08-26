@@ -298,6 +298,12 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
     add_subdirectory(libraries)
 endif()
 
+# Add GLTF 
+if (MATERIALX_BUILD_GLTF)
+    set(MATERIALX_BUILD_RENDER ON)
+    add_subdirectory(source/MaterialXglTF)
+endif()
+
 # Add rendering and viewer subdirectories
 if(MATERIALX_BUILD_RENDER)
     add_subdirectory(source/MaterialXRender)
@@ -320,16 +326,6 @@ if(MATERIALX_BUILD_RENDER)
     if(MATERIALX_INSTALL_RESOURCES AND NOT SKBUILD)
         add_subdirectory(resources)
     endif()
-endif()
-
-# Add test subdirectory
-if(MATERIALX_BUILD_TESTS)
-    add_subdirectory(source/MaterialXTest)
-endif()
-
-# Add GLTF 
-if (MATERIALX_BUILD_GLTF)
-    add_subdirectory(source/MaterialXglTF)
 endif()
 
 # Add Python subdirectories

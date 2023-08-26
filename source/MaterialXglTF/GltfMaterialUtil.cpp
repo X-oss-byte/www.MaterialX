@@ -36,6 +36,9 @@ bool GltfMaterialUtil::mtlx2glTF(MaterialHandlerPtr gltfMTLXLoader,
 
 bool GltfMaterialUtil::haveSingleDocBake(const FilePath& errorFile)
 {
+#ifdef TARGET_OS_IOS
+    return false;
+#else
     FilePath shaderTranslator(MTLX_TRANSLATE_SHADER);
     if (shaderTranslator.isEmpty())
     {
@@ -48,6 +51,7 @@ bool GltfMaterialUtil::haveSingleDocBake(const FilePath& errorFile)
         +" > " + errorFile.asString() + redirectString;
 
     int returnValue = system(testcommand.c_str());
+
     if (returnValue != 0)
     {
         return false;
@@ -62,11 +66,15 @@ bool GltfMaterialUtil::haveSingleDocBake(const FilePath& errorFile)
         return true;
     }
     return false;
+#endif    
 }
 
 bool GltfMaterialUtil::bakeDocument(const FilePath& inputFileName, const FilePath& outputFilename, 
                                     unsigned int width, unsigned int height, StringVec& logFile)
 {
+#ifdef TARGET_OS_IOS
+    return false;
+#else     
     // Run test renders on output
     FilePath shaderTranslator(MTLX_TRANSLATE_SHADER);
     if (!shaderTranslator.isEmpty())
@@ -103,11 +111,15 @@ bool GltfMaterialUtil::bakeDocument(const FilePath& inputFileName, const FilePat
         return renderError;
     }
     return false;
+#endif    
 }
 
 bool GltfMaterialUtil::renderImage(const FilePath& materialXViewInstall, const FilePath& captureName, const FilePath& meshFile, 
                                   const std::string& materialFile, StringVec& logFile)
 {
+#ifdef TARGET_OS_IOS
+    return false;
+#else
     // Run test renders on output
     if (!materialXViewInstall.isEmpty())
     {
@@ -144,6 +156,7 @@ bool GltfMaterialUtil::renderImage(const FilePath& materialXViewInstall, const F
         return renderError;
     }
     return true;
+#endif    
 }
 
 MATERIALX_NAMESPACE_END

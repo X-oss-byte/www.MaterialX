@@ -4,8 +4,8 @@
 /// @file 
 /// GLTF material handling utilities
 
-#include <MaterialXglTF/Export.h>
-#include <MaterialXglTF/GltfMaterialHandler.h>
+#include <MaterialXRender/Export.h>
+#include <MaterialXRender/GltfMaterialHandler.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
@@ -15,7 +15,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-class MX_GLTF_API GltfMaterialUtil
+class MX_RENDER_API GltfMaterialUtil
 {
   public:
     GltfMaterialUtil()

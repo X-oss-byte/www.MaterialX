@@ -4,7 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
-#include <MaterialXglTF/GltfMaterialHandler.h>
+#include <MaterialXRender/GltfMaterialHandler.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

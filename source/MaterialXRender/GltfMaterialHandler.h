@@ -5,7 +5,7 @@
 /// @file 
 /// GLTF material loader using the Cgltf library
 
-#include <MaterialXglTF/Export.h>
+#include <MaterialXRender/Export.h>
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
 
@@ -20,7 +20,7 @@ using GltfMaterialHandlerPtr = std::shared_ptr<class GltfMaterialHandler>;
 
 /// @class MaterialHandler
 /// Wrapper for handler to convert materials to / from MaterialX
-class MX_GLTF_API MaterialHandler
+class MX_RENDER_API MaterialHandler
 {
   public:
     MaterialHandler() 
@@ -130,7 +130,7 @@ class MX_GLTF_API MaterialHandler
 
 /// @class GltfMaterialHandler
 /// Wrapper for handling import / export of materials to / from GLTF files
-class MX_GLTF_API GltfMaterialHandler : public MaterialHandler
+class MX_RENDER_API GltfMaterialHandler : public MaterialHandler
 {
   public:
     GltfMaterialHandler() 

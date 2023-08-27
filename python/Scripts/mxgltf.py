@@ -5,7 +5,7 @@ MaterialX glTF bi-directional conversion example
 
 import sys, os, io, argparse
 import MaterialX as mx
-import MaterialX.PyMaterialXglTF as mx_gltf
+import MaterialX.PyMaterialXRender as mx_gltf
 
 def skipLibraryElement(elem):
     return not elem.hasSourceUri()

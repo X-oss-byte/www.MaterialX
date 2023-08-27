@@ -8,10 +8,8 @@
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
 
-#if MATERIALX_BUILD_GLTF
-#include <MaterialXglTF/GltfMaterialHandler.h>
-#include <MaterialXglTF/GltfMaterialUtill.h>
-#endif
+#include <MaterialXRender/GltfMaterialHandler.h>
+#include <MaterialXRender/GltfMaterialUtill.h>
 
 #include <imgui_stdlib.h>
 #include <imgui_node_editor_internal.h>
@@ -84,10 +82,8 @@ Graph::Graph(const std::string& materialFilename,
 
     // Set up filters load and save
     _mtlxFilter.push_back(".mtlx");
-#ifdef MATERIALX_BUILD_GLTF
     _mtlxFilter.push_back(".gltf");
     _mtlxFilter.push_back(".glb");
-#endif
     _geomFilter.push_back(".obj");
     _geomFilter.push_back(".glb");
     _geomFilter.push_back(".gltf");
@@ -184,14 +180,12 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     {
         if (!filename.isEmpty())
         {
-#ifdef MATERIALX_BUILD_GLTF
             if (filename.getExtension() == "gltf")
             {
                 mx::StringVec log;
                 doc = mx::GltfMaterialUtil::glTF2Mtlx(filename, _stdLib, false, false, log);
             }
             else
-#endif
             {
                 doc = mx::createDocument();
                 mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
@@ -4256,16 +4250,14 @@ void Graph::writeText(std::string fileName, mx::FilePath filePath)
 
     if (filePath.getExtension() == mx::MTLX_EXTENSION)
     {
-    mx::XmlWriteOptions writeOptions;
-    writeOptions.elementPredicate = getElementPredicate();
-    mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
-}
-#ifdef MATERIALX_BUILD_GLTF
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.elementPredicate = getElementPredicate();
+        mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
+    }
     else
     {
         mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
         mx::StringVec log;
         mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filePath, _graphDoc, log);
     }
-#endif
 }

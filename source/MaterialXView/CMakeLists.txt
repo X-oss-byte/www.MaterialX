@@ -128,9 +128,6 @@ endif()
 if (MATERIALX_BUILD_GEN_MDL)
     LIST(APPEND MATERIALX_LIBRARIES MaterialXGenMdl)
 endif()
-if (MATERIALX_BUILD_GLTF)
-    LIST(APPEND MATERIALX_LIBRARIES MaterialXglTF)
-endif()
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 

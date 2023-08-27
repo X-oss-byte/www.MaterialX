@@ -7,7 +7,7 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
 #include <MaterialXRender/StbImageLoader.h>
-#include <MaterialXglTF/GltfMaterialHandler.h>
+#include <MaterialXRender/GltfMaterialHandler.h>
 
 #include <algorithm>
 
@@ -30,7 +30,7 @@
 //#define CGLTF_IMPLEMENTATION //-- don't set to avoid duplicate symbols
 #include <MaterialXRender/External/Cgltf/cgltf.h>
 #define CGLTF_WRITE_IMPLEMENTATION
-#include <MaterialXglTF/External/Cgltf/cgltf_write.h>
+#include <MaterialXRender/External/Cgltf/cgltf_write.h>
 
 #if defined(_MSC_VER)
     #pragma warning(pop)

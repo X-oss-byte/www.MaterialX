@@ -317,6 +317,11 @@ if(MATERIALX_BUILD_RENDER)
     endif()
 endif()
 
+# Add test subdirectory
+if(MATERIALX_BUILD_TESTS)
+    add_subdirectory(source/MaterialXTest)
+endif()
+
 # Add Python subdirectories
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)

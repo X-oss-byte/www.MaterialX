@@ -34,10 +34,8 @@
 #endif
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
-#if MATERIALX_BUILD_GLTF
-    #include <MaterialXglTF/GltfMaterialHandler.h>
-    #include <MaterialXglTF/GltfMaterialUtill.h>
-#endif
+#include <MaterialXRender/GltfMaterialHandler.h>
+#include <MaterialXRender/GltfMaterialUtill.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
@@ -145,7 +143,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
             }
         }
     }
-
+#if 0
     // Remap unsupported texture coordinate indices.
     for (mx::ElementPtr elem : doc->traverseTree())
     {
@@ -160,6 +158,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
             }
         }
     }
+#endif    
 }
 
 // ViewDir implementation for GLSL
@@ -706,14 +705,12 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 writeOptions.elementPredicate = getElementPredicate();
                 mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
             }
-#ifdef MATERIALX_BUILD_GLTF
             else
             {
                 mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
                 mx::StringVec log;
                 mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filename, material->getDocument(), log);
             }
-#endif
 
             // Update material file name
             _materialFilename = filename;
@@ -1266,14 +1263,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     try
     {
         mx::DocumentPtr doc = nullptr;
-#ifdef MATERIALX_BUILD_GLTF
         if (filename.getExtension() == "gltf")
         {
             mx::StringVec log;
             doc = mx::GltfMaterialUtil::glTF2Mtlx(filename, libraries, true, true, log);
         }
         else
-#endif
         {
             // Load source document.
             doc = mx::createDocument();

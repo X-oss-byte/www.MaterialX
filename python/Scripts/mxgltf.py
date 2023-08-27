@@ -46,11 +46,13 @@ def main():
         doc = mx.createDocument()
         mx.readFromXmlFile(doc, inputFilePath)
         outputFilePath = inputFilePath
-        outputFilePath.addExtension('gltf')
         print('Converting MaterialX file:%s to glTF file: %s' % 
-              (inputFilePath.asString(), outputFilePath.asString()))
-        converted = utils.mtlx2glTF(handler, outputFilePath, doc, log)
-        print("- Converted: " + converted)
+              (inputFilePath.asString(), outputFilePath.asString() + '.gltf'))
+        converted = utils.mtlx2glTF(handler, outputFilePath.asString() + '.gltf', doc, log)        
+        outputFilePath.addExtension('gltf')
+        print("- Converted: " + str(converted))
+        if not converted:
+            print("- Log: " + '\n'.join(log))
 
     # Convert from GLTF to MaterialX
     elif toMaterialX:
@@ -60,7 +62,7 @@ def main():
         libraryFolders.extend(mx.getDefaultDataLibraryFolders())
         try:
             mx.loadLibraries(libraryFolders, searchPath, stdlib)
-        except err:
+        except mx.Exception as err:
             print('Failed to load standard libraries: "', err, '"')
             sys.exit(-1)
 

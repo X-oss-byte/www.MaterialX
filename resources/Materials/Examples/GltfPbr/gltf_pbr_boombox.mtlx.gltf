@@ -7,19 +7,19 @@
   "images": [
     {
       "name": "image_basecolor",
-      "uri": "BoomBox_baseColor.png"
+      "uri": "boombox/BoomBox_baseColor.png"
     },
     {
       "name": "image_orm",
-      "uri": "BoomBox_occlusionRoughnessMetallic.png"
+      "uri": "boombox/BoomBox_occlusionRoughnessMetallic.png"
     },
     {
       "name": "image_normal",
-      "uri": "BoomBox_normal.png"
+      "uri": "boombox/BoomBox_normal.png"
     },
     {
       "name": "image_emission",
-      "uri": "BoomBox_emissive.png"
+      "uri": "boombox/BoomBox_emissive.png"
     }
   ],
   "materials": [

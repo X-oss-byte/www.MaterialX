@@ -7,6 +7,7 @@
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXFormat/JSONIo.h>
 
 #include <MaterialXRender/GltfMaterialHandler.h>
 #include <MaterialXRender/GltfMaterialUtill.h>
@@ -84,6 +85,7 @@ Graph::Graph(const std::string& materialFilename,
     _mtlxFilter.push_back(".mtlx");
     _mtlxFilter.push_back(".gltf");
     _mtlxFilter.push_back(".glb");
+    _mtlxFilter.push_back(".json");
     _geomFilter.push_back(".obj");
     _geomFilter.push_back(".glb");
     _geomFilter.push_back(".gltf");
@@ -188,7 +190,16 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             else
             {
                 doc = mx::createDocument();
-                mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+
+                if (filename.getExtension() == "json")
+                {
+                    mx::JSONReadOptions jsonReadOptions;
+                    mx::readFromJSONFile(doc, filename, _searchPath, &jsonReadOptions);
+                }
+                else
+                {
+                    mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+                }
                 doc->importLibrary(_stdLib);
                 std::string message;
                 if (!doc->validate(&message))
@@ -4243,21 +4254,38 @@ void Graph::savePosition()
 }
 void Graph::writeText(std::string fileName, mx::FilePath filePath)
 {
-    if (filePath.getExtension() == mx::EMPTY_STRING)
-    {
-        filePath.addExtension(mx::MTLX_EXTENSION);
-    }
+    //if (filePath.getExtension() == mx::EMPTY_STRING)
+    //{
+    //    filePath.addExtension(mx::MTLX_EXTENSION);
+    //}
 
     if (filePath.getExtension() == mx::MTLX_EXTENSION)
     {
         mx::XmlWriteOptions writeOptions;
         writeOptions.elementPredicate = getElementPredicate();
         mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
+        std::cout << "Wrote MTLX file: " << filePath.asString() << std::endl;
+    }
+    else if (filePath.getExtension() == "json")
+    {
+        mx::JSONWriteOptions jsonWriteOptions;
+
+        jsonWriteOptions.elementPredicate = getElementPredicate();
+        jsonWriteOptions.storeLayoutInformation = true;
+        jsonWriteOptions.addNodeGraphChildren = false;
+        jsonWriteOptions.addDefinitionInformation = false;
+        mx::writeToJSONFile(_graphDoc, filePath.asString() + "_nograph.json", &jsonWriteOptions);
+        std::cout << "Wrote JSON (without graph children) file: " << filePath.asString() + "_nograph.json" << std::endl;
+
+        jsonWriteOptions.addNodeGraphChildren = true;
+        mx::writeToJSONFile(_graphDoc, filePath.asString(), &jsonWriteOptions);
+        std::cout << "Wrote JSON (with nodegraph children) file: " << filePath.asString() << std::endl;
     }
     else
     {
         mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
         mx::StringVec log;
         mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filePath, _graphDoc, log);
+        std::cout << "Wrote gltf file: " << filePath.asString() << std::endl;
     }
 }

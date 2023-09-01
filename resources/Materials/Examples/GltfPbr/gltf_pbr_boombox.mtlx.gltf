@@ -33,6 +33,22 @@
           "index": 1
         }
       },
+      "extensions": {
+        "KHR_materials_clearcoat": {
+        },
+        "KHR_materials_ior": {
+        },
+        "KHR_materials_specular": {
+        },
+        "KHR_materials_transmission": {
+        },
+        "KHR_materials_sheen": {
+        },
+        "KHR_materials_emissive_strength": {
+        },
+        "KHR_materials_iridescence": {
+        }
+      },
       "occlusionTexture": {
         "index": 1,
         "scale": 0
@@ -61,5 +77,14 @@
       "name": "image_emission",
       "source": 3
     }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_clearcoat",
+    "KHR_materials_ior",
+    "KHR_materials_specular",
+    "KHR_materials_transmission",
+    "KHR_materials_sheen",
+    "KHR_materials_emissive_strength",
+    "KHR_materials_iridescence"
   ]
 }

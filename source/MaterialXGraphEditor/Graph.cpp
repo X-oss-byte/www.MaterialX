@@ -76,7 +76,8 @@ Graph::Graph(const std::string& materialFilename,
     _isCut(false),
     _autoLayout(false),
     _frameCount(INT_MIN),
-    _pinFilterType(mx::EMPTY_STRING)
+    _fontScale(1.0f),
+    _saveNodePositions(true)
 {
     loadStandardLibraries();
     setPinColor();
@@ -198,15 +199,15 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
                 }
                 else
                 {
-                    mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+            mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
                 }
-                doc->importLibrary(_stdLib);
-                std::string message;
-                if (!doc->validate(&message))
-                {
-                    std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
-                    std::cerr << message << std::endl;
-                }
+            doc->importLibrary(_stdLib);
+            std::string message;
+            if (!doc->validate(&message))
+            {
+                std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
+                std::cerr << message << std::endl;
+            }
             }
             
             // Cache the currently loaded file
@@ -3110,6 +3111,12 @@ void Graph::graphButtons()
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Options"))
+        {
+            ImGui::Checkbox("Save Node Positions", &_saveNodePositions);
+            ImGui::EndMenu();
+        }
+
         if (ImGui::Button("Help"))
         {
             ImGui::OpenPopup("Help");
@@ -4338,16 +4345,24 @@ void Graph::savePosition()
 }
 void Graph::saveDocument(mx::FilePath filePath)
 {
-    //if (filePath.getExtension() == mx::EMPTY_STRING)
-    //{
-    //    filePath.addExtension(mx::MTLX_EXTENSION);
-    //}
+    mx::DocumentPtr writeDoc = _graphDoc;
+
+    // If requested, create a modified version of the document for saving.
+    if (!_saveNodePositions)
+    {
+        writeDoc = _graphDoc->copy();
+        for (mx::ElementPtr elem : writeDoc->traverseTree())
+        {
+            elem->removeAttribute("xpos");
+            elem->removeAttribute("ypos");
+        }
+    }
 
     if (filePath.getExtension() == mx::MTLX_EXTENSION)
     {
         mx::XmlWriteOptions writeOptions;
         writeOptions.elementPredicate = getElementPredicate();
-        mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
+        mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
         std::cout << "Wrote MTLX file: " << filePath.asString() << std::endl;
     }
     else if (filePath.getExtension() == "json")
@@ -4358,18 +4373,18 @@ void Graph::saveDocument(mx::FilePath filePath)
         jsonWriteOptions.storeLayoutInformation = true;
         jsonWriteOptions.addNodeGraphChildren = false;
         jsonWriteOptions.addDefinitionInformation = false;
-        mx::writeToJSONFile(_graphDoc, filePath.asString() + "_nograph.json", &jsonWriteOptions);
+        mx::writeToJSONFile(writeDoc, filePath.asString() + "_nograph.json", &jsonWriteOptions);
         std::cout << "Wrote JSON (without graph children) file: " << filePath.asString() + "_nograph.json" << std::endl;
 
         jsonWriteOptions.addNodeGraphChildren = true;
-        mx::writeToJSONFile(_graphDoc, filePath.asString(), &jsonWriteOptions);
+        mx::writeToJSONFile(writeDoc, filePath.asString(), &jsonWriteOptions);
         std::cout << "Wrote JSON (with nodegraph children) file: " << filePath.asString() << std::endl;
     }
     else
     {
         mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
         mx::StringVec log;
-        mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filePath, _graphDoc, log);
-        std::cout << "Wrote gltf file: " << filePath.asString() << std::endl;
+        bool wrote = mx::GltfMaterialUtil::mtlx2glTF(gltfHandler, filePath, writeDoc, log);
+        std::cout << "Wrote gltf file: " << filePath.asString() << ". Success: " << wrote << std::endl;
     }
 }

@@ -97,7 +97,7 @@ int main(int argc, char* const argv[])
         tokens.emplace_back(argv[i]);
     }
 
-    std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx";
+    std::string materialFilename = "resources/Materials/Examples/GltfPbr/gltf_pbr_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;

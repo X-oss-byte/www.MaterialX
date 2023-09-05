@@ -20,7 +20,7 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
             cmd.append(codevalidatorArgs)
         cmd_flatten ='----- Run Validator: '
         for c in cmd:
-            cmd_flatten += c + ' '
+            cmd_flatten += f'{c} '
         print(cmd_flatten)
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -33,9 +33,11 @@ def getMaterialXFiles(rootPath):
     filelist = []
     if os.path.isdir(rootPath): 
         for subdir, dirs, files in os.walk(rootPath):
-            for file in files:
-                if file.endswith('mtlx'):
-                    filelist.append(os.path.join(subdir, file)) 
+            filelist.extend(
+                os.path.join(subdir, file)
+                for file in files
+                if file.endswith('mtlx')
+            )
     else:
         filelist.append( rootPath )
 

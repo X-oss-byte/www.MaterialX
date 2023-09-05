@@ -120,18 +120,18 @@ def main():
     # independently, not just the whole document.
     rc = ng1.validate()
     if (len(rc) >= 1 and rc[0]):
-        print("Nodegraph %s is valid." % ng1.getName())
+        print(f"Nodegraph {ng1.getName()} is valid.")
     else:
-        print("Nodegraph %s is NOT valid: %s" % (ng1.getName(), str(rc[1])))
+        print(f"Nodegraph {ng1.getName()} is NOT valid: {str(rc[1])}")
     rc = ng3.validate()
     if (len(rc) >= 1 and rc[0]):
-        print("Nodegraph %s is valid." % ng3.getName())
+        print(f"Nodegraph {ng3.getName()} is valid.")
     else:
-        print("Nodegraph %s is NOT valid: %s" % (ng3.getName(), str(rc[1])))
+        print(f"Nodegraph {ng3.getName()} is NOT valid: {str(rc[1])}")
 
     outfile = "myNodeGraphs.mtlx"
     mx.writeToXmlFile(doc, outfile)
-    print("Wrote nodegraphs to %s" % outfile)
+    print(f"Wrote nodegraphs to {outfile}")
 
 if __name__ == '__main__':
     main()

@@ -34,21 +34,23 @@ def main():
             print('}')
             print('</style></head>')
             print('<ul>')
-            print('<li> <em>Nodedef</em>: %s' % nd.getName())
-            print('<li> <em>Type</em>: %s' % nd.getType())
+            print(f'<li> <em>Nodedef</em>: {nd.getName()}')
+            print(f'<li> <em>Type</em>: {nd.getType()}')
             if len(nd.getNodeGroup()) > 0:
-                print('<li> <em>Node Group</em>: %s' % nd.getNodeGroup())
+                print(f'<li> <em>Node Group</em>: {nd.getNodeGroup()}')
             if len(nd.getVersionString()) > 0:
-                print('<li> <em>Version</em>: %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
+                print(
+                    f'<li> <em>Version</em>: {nd.getVersionString()}. Is default: {nd.getDefaultVersion()}'
+                )
             if len(nd.getInheritString()) > 0:
-                print('<li> <em>Inherits From</em>: %s' % nd.getInheritString())
+                print(f'<li> <em>Inherits From</em>: {nd.getInheritString()}')
             print('<li> <em>Doc</em>: %s\n' % nd.getAttribute('doc'))
             print('</ul>')
             print('<table><tr>')
             for h in HEADERS:
-                print('<th>' + h + '</th>')
+                print(f'<th>{h}</th>')
             print('</tr>')
-            inputList = nd.getActiveInputs() if opts.showInherited  else nd.getInputs()            
+            inputList = nd.getActiveInputs() if opts.showInherited  else nd.getInputs()
             tokenList = nd.getActiveTokens() if opts.showInherited  else nd.getTokens()
             outputList = nd.getActiveOutputs() if opts.showInherited  else nd.getOutputs()
             totalList = inputList + tokenList + outputList;
@@ -56,33 +58,33 @@ def main():
                 print('<tr>')
                 infos = []
                 if port in outputList:
-                    infos.append('<em>'+ port.getName() + '</em>')
+                    infos.append(f'<em>{port.getName()}</em>')
                 elif port in tokenList:
                     infos.append(port.getName())
                 else:
-                    infos.append('<b>'+ port.getName() + '</b>')
+                    infos.append(f'<b>{port.getName()}</b>')
                 infos.append(port.getType())
                 val = port.getValue()
                 if port.getType() == "float":
                     val = round(val, 6)
                 infos.append(str(val))
-                for attrname in ATTR_NAMES:
-                    infos.append(port.getAttribute(attrname))
+                infos.extend(port.getAttribute(attrname) for attrname in ATTR_NAMES)
                 for info in infos:
-                    print('<td>' + info + '</td>')
+                    print(f'<td>{info}</td>')
                 print('</tr>')
             print('</table>')
 
-        # Markdown output
         else:
-            print('- *Nodedef*: %s' % nd.getName())
-            print('- *Type*: %s' % nd.getType())
+            print(f'- *Nodedef*: {nd.getName()}')
+            print(f'- *Type*: {nd.getType()}')
             if len(nd.getNodeGroup()) > 0:
-                print('- *Node Group*: %s' % nd.getNodeGroup())
+                print(f'- *Node Group*: {nd.getNodeGroup()}')
             if len(nd.getVersionString()) > 0:
-                print('- *Version*: %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
+                print(
+                    f'- *Version*: {nd.getVersionString()}. Is default: {nd.getDefaultVersion()}'
+                )
             if len(nd.getInheritString()) > 0:
-                print('- *Inherits From*: %s' % nd.getInheritString())
+                print(f'- *Inherits From*: {nd.getInheritString()}')
             print('- *Doc*: %s\n' % nd.getAttribute('doc'))
             print('| ' + ' | '.join(HEADERS) + ' |')
             print('|' + ' ---- |' * len(HEADERS) + '')
@@ -93,18 +95,17 @@ def main():
             for port in totalList:
                 infos = []
                 if port in outputList:
-                    infos.append('*'+ port.getName() + '*')
+                    infos.append(f'*{port.getName()}*')
                 elif port in tokenList:
                     infos.append(port.getName())
                 else:
-                    infos.append('**'+ port.getName() + '**')
+                    infos.append(f'**{port.getName()}**')
                 infos.append(port.getType())
                 val = port.getValue()
                 if port.getType() == "float":
                     val = round(val, 6)
                 infos.append(str(val))
-                for attrname in ATTR_NAMES:
-                    infos.append(port.getAttribute(attrname))
+                infos.extend(port.getAttribute(attrname) for attrname in ATTR_NAMES)
                 print('| ' + " | ".join(infos) + ' |')
 
 if __name__ == '__main__':

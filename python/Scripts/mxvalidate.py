@@ -31,10 +31,14 @@ def main():
         doc.importLibrary(stdlib)
 
     (valid, message) = doc.validate()
-    if (valid):
-        print("%s is a valid MaterialX document in v%s" % (opts.inputFilename, mx.getVersionString()))
+    if valid:
+        print(
+            f"{opts.inputFilename} is a valid MaterialX document in v{mx.getVersionString()}"
+        )
     else:
-        print("%s is not a valid MaterialX document in v%s" % (opts.inputFilename, mx.getVersionString()))
+        print(
+            f"{opts.inputFilename} is not a valid MaterialX document in v{mx.getVersionString()}"
+        )
         print(message)
 
     if opts.verbose:
@@ -82,10 +86,13 @@ def listContents(elemlist, resolve):
                 for ot in elem.getOutputs():
                     outs = outs + \
                         '\n\t    %s output "%s"' % (ot.getType(), ot.getName())
-            names.append('%s %s "%s"%s' %
-                         (outtype, elem.getNodeString(), elem.getName(), outs))
-            names.append(listNodedefInterface(elem))
-
+            names.extend(
+                (
+                    '%s %s "%s"%s'
+                    % (outtype, elem.getNodeString(), elem.getName(), outs),
+                    listNodedefInterface(elem),
+                )
+            )
         elif elem.isA(mx.Implementation):
             impl = elem.getName()
             targs = []
@@ -120,8 +127,7 @@ def listContents(elemlist, resolve):
                 for ot in elem.getOutputs():
                     outs = outs + '\n\t    %s output "%s"' % (ot.getType(), ot.getName())
                     outs = outs + traverseInputs(ot, "", 0)
-            nd = elem.getNodeDef()
-            if nd:
+            if nd := elem.getNodeDef():
                 names.append('%s (implementation for nodedef "%s"): %d nodes%s' % (
                     elem.getName(), nd.getName(), nchildnodes, outs))
             else:
@@ -135,15 +141,13 @@ def listContents(elemlist, resolve):
                 names.append('Shader node "%s" (%s), with bindings:%s' % (shader.getName(), shader.getCategory(), listShaderBindings(shader)))
 
         elif elem.isA(mx.GeomInfo):
-            props = elem.getGeomProps()
-            if props:
+            if props := elem.getGeomProps():
                 propnames = " (Geomprops: " + ", ".join(map(
                             lambda x: "%s=%s" % (x.getName(), getConvertedValue(x)), props)) + ")"
             else:
                 propnames = ""
 
-            tokens = elem.getTokens()
-            if tokens:
+            if tokens := elem.getTokens():
                 tokennames = " (Tokens: " + ", ".join(map(
                              lambda x: "%s=%s" % (x.getName(), x.getValueString()), tokens)) + ")"
             else:
@@ -151,17 +155,18 @@ def listContents(elemlist, resolve):
             names.append("%s%s%s" % (elem.getName(), propnames, tokennames))
 
         elif elem.isA(mx.VariantSet):
-            vars = elem.getVariants()
-            if vars:
-                varnames = " (variants " + ", ".join(map(
-                           lambda x: '"' + x.getName()+'"', vars)) + ")"
+            if vars := elem.getVariants():
+                varnames = (
+                    " (variants "
+                    + ", ".join(map(lambda x: f'"{x.getName()}"', vars))
+                    + ")"
+                )
             else:
                 varnames = ""
             names.append("%s%s" % (elem.getName(), varnames))
 
         elif elem.isA(mx.PropertySet):
-            props = elem.getProperties()
-            if props:
+            if props := elem.getProperties():
                 propnames = " (" + ", ".join(map(
                            lambda x: "%s %s%s" % (x.getType(), x.getName(), getTarget(x)), props)) + ")"
             else:
@@ -169,8 +174,7 @@ def listContents(elemlist, resolve):
             names.append("%s%s" % (elem.getName(), propnames))
 
         elif elem.isA(mx.LookGroup):
-            lks = elem.getLooks()
-            if lks:
+            if lks := elem.getLooks():
                 names.append("%s (looks: %s)" % (elem.getName(), lks))
             else:
                 names.append("%s (no looks)" % (elem.getName()))
@@ -214,10 +218,7 @@ def listContents(elemlist, resolve):
                     varassn.getVariantString(), varassn.getVariantSetString())
 
             visas = ""
-            if resolve:
-                visassns = elem.getActiveVisibilities()
-            else:
-                visassns = elem.getVisibilities()
+            visassns = elem.getActiveVisibilities() if resolve else elem.getVisibilities()
             for vis in visassns:
                 visstr = 'on' if vis.getVisible() else 'off'
                 visas = visas + "\n\t    Set %s visibility%s %s to%s" % (
@@ -254,13 +255,13 @@ def listNodedefInterface(nodedef):
         itype = inp.getType()
         if s:
             s = s + '\n\t'
-        s = s + '    %s input "%s"' % (itype, iname)
+        s = f'{s}    {itype} input "{iname}"'
     for tok in nodedef.getActiveTokens():
         tname = tok.getName()
         ttype = tok.getType()
         if s:
             s = s + '\n\t'
-        s = s + '    %s token "%s"' % (ttype, tname)
+        s = f'{s}    {ttype} token "{tname}"'
     return s
 
 def traverseInputs(node, port, depth):

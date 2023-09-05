@@ -41,12 +41,23 @@ def _loadLibraries(doc, searchPath, libraryPath):
             _loadLibrary(filePath, doc)
 
 def _writeHeader(file, version):
-    file.write('mdl ' + version + ';\n')
+    file.write(f'mdl {version}' + ';\n')
     file.write('using core import *;\n')
-    IMPORT_LIST = { '::anno::*', '::base::*', '.::swizzle::*', '.::cm::*', '::math::*', '::state::*', '::tex::*', '::state::*',  '.::vectormatrix::*', '.::hsv::*', '.::noise::*'}
+    IMPORT_LIST = {
+        '::anno::*',
+        '::base::*',
+        '.::swizzle::*',
+        '.::cm::*',
+        '::math::*',
+        '::tex::*',
+        '::state::*',
+        '.::vectormatrix::*',
+        '.::hsv::*',
+        '.::noise::*',
+    }
     # To verify what are the minimal imports required
     for i in IMPORT_LIST:
-        file.write('import' + i + ';\n')
+        file.write(f'import{i}' + ';\n')
     file.write('\n\n')
     file.write('// Helper function mapping texture node addressmodes to MDL wrap modes\n')
     file.write('::tex::wrap_mode map_addressmode( mx_addressmode_type value ) {\n')
@@ -85,9 +96,7 @@ def _mapGeomProp(geomprop):
 
 def _writeValueAssignment(file, outputValue, outputType, writeEmptyValues):
     # Mapping of types to initializers
-    assignMap = dict()
-    assignMap['float2[<N>]'] = 'float2[]'
-
+    assignMap = {'float2[<N>]': 'float2[]'}
     if outputType == 'color4':
         outputType = 'mk_color4'
 
@@ -98,7 +107,7 @@ def _writeValueAssignment(file, outputValue, outputType, writeEmptyValues):
     if len(outputValue) or writeEmptyValues:
         file.write(' = ')
         if outputType:
-            file.write(outputType + '(')
+            file.write(f'{outputType}(')
         if outputType == 'string':
             file.write('"')
         file.write(outputValue)
@@ -108,14 +117,12 @@ def _writeValueAssignment(file, outputValue, outputType, writeEmptyValues):
             file.write(')')
 
 def _mapType(typeName, typeMap, functionName):
-    if 'mx_constant_filename' == functionName:
+    if functionName == 'mx_constant_filename':
         return 'string'
     elif ('transformpoint' in functionName) or ('transformvector' in functionName) or ('transformnormal' in functionName):
         if typeName == 'string':
             return 'mx_coordinatespace_type'
-    if typeName in typeMap:
-        return typeMap[typeName]
-    return typeName
+    return typeMap[typeName] if typeName in typeMap else typeName
 
 INDENT = '\t'
 SPACE = ' '
@@ -136,9 +143,9 @@ def _writeImageImplementation(file, outputType):
     isColor4 = (outputType == 'color4')
     if isColor4:
         outputType = 'float4'
-        outputType = 'mk_color4( ::tex::lookup_' + outputType
+        outputType = f'mk_color4( ::tex::lookup_{outputType}'
     else:
-        outputType = '::tex::lookup_' + outputType
+        outputType = f'::tex::lookup_{outputType}'
     outputValue = 'tex: mxp_file, \n' \
         + INDENT*6 + 'coord: mxp_texcoord,\n' \
         + INDENT*6 + 'wrap_u: map_addressmode(mxp_uaddressmode),\n' \
@@ -150,36 +157,60 @@ def _writeImageImplementation(file, outputType):
     file.write(INDENT + 'return returnValue;\n')
 
 def _writeOneArgumentFunc(file, outputType, functionName):
-        if outputType == 'color4':
-            file.write(INDENT + 'return mk_color4(' + functionName + '(mk_float4(mxp_in)));\n')
-        elif outputType == 'color':
-            file.write(INDENT + 'return color(' + functionName + '(mk_float3(mxp_in)));\n')
-        else:
-            file.write(INDENT + 'return ' + functionName + '(mxp_in);\n')
+    if outputType == 'color4':
+        file.write(
+            f'{INDENT}return mk_color4({functionName}'
+            + '(mk_float4(mxp_in)));\n'
+        )
+    elif outputType == 'color':
+        file.write(f'{INDENT}return color({functionName}' + '(mk_float3(mxp_in)));\n')
+    else:
+        file.write(f'{INDENT}return {functionName}' + '(mxp_in);\n')
 
 def _writeOperatorFunc(file, outputType, arg1, functionName, arg2):
-        if outputType == 'color4':
-            file.write(INDENT + 'return mk_color4(mk_float4(' + arg1 +') ' + functionName + ' mk_float4(' + arg2 + '));\n')
-        elif outputType == 'float3x3' or outputType == 'float4x4':
-            file.write(INDENT + 'return ' + outputType + '(' + arg1 + ') ' + functionName + ' ' + outputType + '(' + arg2 + ');\n')
-        else:
-            file.write(INDENT + 'return ' + arg1 + ' ' + functionName + ' ' + arg2 + ';\n')
+    if outputType == 'color4':
+        file.write(
+            f'{INDENT}return mk_color4(mk_float4({arg1}) {functionName} mk_float4({arg2}'
+            + '));\n'
+        )
+    elif outputType in ['float3x3', 'float4x4']:
+        file.write(
+            f'{INDENT}return {outputType}({arg1}) {functionName} {outputType}({arg2}'
+            + ');\n'
+        )
+    else:
+        file.write(f'{INDENT}return {arg1} {functionName} {arg2}' + ';\n')
 
 def _writeTwoArgumentFunc(file, outputType, functionName):
-        if outputType == 'color4':
-            file.write(INDENT + 'return mk_color4(' + functionName + '(mk_float4(mxp_in1), mk_float4(mxp_in2)));\n')
-        elif outputType == 'color':
-            file.write(INDENT + 'return color(' + functionName + '(float3(mxp_in1), float3(mxp_in2)));\n')
-        else:
-            file.write(INDENT + 'return ' + functionName + '(mxp_in1, mxp_in2);\n')
+    if outputType == 'color4':
+        file.write(
+            f'{INDENT}return mk_color4({functionName}'
+            + '(mk_float4(mxp_in1), mk_float4(mxp_in2)));\n'
+        )
+    elif outputType == 'color':
+        file.write(
+            f'{INDENT}return color({functionName}'
+            + '(float3(mxp_in1), float3(mxp_in2)));\n'
+        )
+    else:
+        file.write(f'{INDENT}return {functionName}' + '(mxp_in1, mxp_in2);\n')
 
 def _writeThreeArgumentFunc(file, outputType, functionName, arg1, arg2, arg3):
-        if outputType == 'color4':
-            file.write(INDENT + 'return mk_color4(' + functionName + '(mk_float4(' + arg1 + '), mk_float4(' + arg2 + '), mk_float4(' + arg3 + ')));\n')
-        elif outputType == 'color':
-            file.write(INDENT + 'return color(' + functionName + '(float3(' + arg1 + '), float3(' + arg2 + '), float3(' + arg3 + ')));\n')
-        else:
-            file.write(INDENT + 'return ' + functionName + '(' + outputType + '(' + arg1 + '),' + outputType + '(' + arg2 + '),' + outputType+ '(' + arg3 + '));\n')
+    if outputType == 'color4':
+        file.write(
+            f'{INDENT}return mk_color4({functionName}(mk_float4({arg1}), mk_float4({arg2}), mk_float4({arg3}'
+            + ')));\n'
+        )
+    elif outputType == 'color':
+        file.write(
+            f'{INDENT}return color({functionName}(float3({arg1}), float3({arg2}), float3({arg3}'
+            + ')));\n'
+        )
+    else:
+        file.write(
+            f'{INDENT}return {functionName}({outputType}({arg1}),{outputType}({arg2}),{outputType}({arg3}'
+            + '));\n'
+        )
 
 def _writeTransformMatrix(file, nodeName):
     if nodeName.find('vector3M4') >= 0:
@@ -194,26 +225,44 @@ def _writeTransformMatrix(file, nodeName):
 def _writeTwoArgumentCombine(file, outputType):
     if outputType == 'color':
         outputType = 'color3';
-    file.write(INDENT + 'return mk_' + outputType + '(mxp_in1, mxp_in2);\n')
+    file.write(f'{INDENT}return mk_{outputType}' + '(mxp_in1, mxp_in2);\n')
 
 def _writeThreeArgumentCombine(file, outputType):
     if outputType == 'color':
-        file.write(INDENT + 'return ' + outputType + '(mxp_in1, mxp_in2, mxp_in3);\n')
+        file.write(f'{INDENT}return {outputType}' + '(mxp_in1, mxp_in2, mxp_in3);\n')
     else:
-        file.write(INDENT + 'return mk_' + outputType + '(mxp_in1, mxp_in2, mxp_in3);\n')
+        file.write(
+            f'{INDENT}return mk_{outputType}'
+            + '(mxp_in1, mxp_in2, mxp_in3);\n'
+        )
 
 def _writeFourArgumentCombine(file, outputType):
     if outputType == 'color':
         outputType = 'color3';
-    file.write(INDENT + 'return mk_' + outputType + '(mxp_in1, mxp_in2, mxp_in3, mxp_in4);\n')
+    file.write(
+        f'{INDENT}return mk_{outputType}'
+        + '(mxp_in1, mxp_in2, mxp_in3, mxp_in4);\n'
+    )
 
 def _writeIfGreater(file, comparitor):
-    file.write(INDENT + 'if (mxp_value1 ' + comparitor + ' mxp_value2) { return mxp_in1; } return mxp_in2;\n' )
+    file.write(
+        f'{INDENT}if (mxp_value1 {comparitor}'
+        + ' mxp_value2) { return mxp_in1; } return mxp_in2;\n'
+    )
 
 def _writeTranformSpace(file, outputType, functionName, input, fromspace, tospace):
-    file.write(INDENT + 'state::coordinate_space fromSpace = ::mx_map_space(' + fromspace + ');\n')
-    file.write(INDENT + 'state::coordinate_space toSpace  = ::mx_map_space(' + tospace + ');\n')
-    file.write(INDENT + 'return mk_' + outputType + '( state::' + functionName + '(fromSpace, toSpace, ' + input + '));\n')
+    file.write(
+        f'{INDENT}state::coordinate_space fromSpace = ::mx_map_space({fromspace}'
+        + ');\n'
+    )
+    file.write(
+        f'{INDENT}state::coordinate_space toSpace  = ::mx_map_space({tospace}'
+        + ');\n'
+    )
+    file.write(
+        f'{INDENT}return mk_{outputType}( state::{functionName}(fromSpace, toSpace, {input}'
+        + '));\n'
+    )
 
 def writeNormalMap(file):
     file.write(INDENT + 'if (mxp_space == "tangent")\n')
@@ -251,18 +300,18 @@ def _writeSwitch(file, outputType):
 
 def _writeOverlay(file, outputType):
     if outputType == 'color4':
-    	file.write(INDENT + 'color4 upper, lower;\n')
-    	file.write(INDENT + 'color4 fg_ = color4(mxp_fg);\n')
-    	file.write(INDENT + 'color4 bg_ = color4(mxp_bg);\n')
-    	file.write(INDENT + 'upper = mx_multiply(mx_multiply(mk_color4(2.0),bg_),fg_);\n')
-    	file.write(INDENT + 'lower = mx_subtract(mx_add(bg_,fg_),mx_multiply(bg_,fg_));\n')
-    	file.write(INDENT + 'color maskRGB = color(::math::step(float3(.5), float3(fg_.rgb)));\n')
-    	file.write(INDENT + 'float maskA = ::math::step(.5, fg_.a);\n')
-    	file.write(INDENT + 'color overlayvalRGB = ::math::lerp(lower.rgb, upper.rgb, maskRGB);\n')
-    	file.write(INDENT + 'float overlayvalA = ::math::lerp(lower.a, upper.a, maskA);\n')
-    	file.write(INDENT + 'color returnRGB = ::math::lerp(mxp_bg.rgb, overlayvalRGB, color(mxp_mix));\n')
-    	file.write(INDENT + 'float returnA = ::math::lerp(mxp_bg.a, overlayvalA, mxp_mix);\n')
-    	file.write(INDENT + 'return color4(returnRGB, returnA);\n')
+        file.write(INDENT + 'color4 upper, lower;\n')
+        file.write(INDENT + 'color4 fg_ = color4(mxp_fg);\n')
+        file.write(INDENT + 'color4 bg_ = color4(mxp_bg);\n')
+        file.write(INDENT + 'upper = mx_multiply(mx_multiply(mk_color4(2.0),bg_),fg_);\n')
+        file.write(INDENT + 'lower = mx_subtract(mx_add(bg_,fg_),mx_multiply(bg_,fg_));\n')
+        file.write(INDENT + 'color maskRGB = color(::math::step(float3(.5), float3(fg_.rgb)));\n')
+        file.write(INDENT + 'float maskA = ::math::step(.5, fg_.a);\n')
+        file.write(INDENT + 'color overlayvalRGB = ::math::lerp(lower.rgb, upper.rgb, maskRGB);\n')
+        file.write(INDENT + 'float overlayvalA = ::math::lerp(lower.a, upper.a, maskA);\n')
+        file.write(INDENT + 'color returnRGB = ::math::lerp(mxp_bg.rgb, overlayvalRGB, color(mxp_mix));\n')
+        file.write(INDENT + 'float returnA = ::math::lerp(mxp_bg.a, overlayvalA, mxp_mix);\n')
+        file.write(INDENT + 'return color4(returnRGB, returnA);\n')
     else:
         file.write(INDENT + outputType + ' upper, lower, mask, overlayval;\n')
         file.write(INDENT + outputType + ' fg_ = ' + outputType + '(mxp_fg);\n')
@@ -272,9 +321,12 @@ def _writeOverlay(file, outputType):
         if outputType == 'color':
             file.write(INDENT + 'mask = color(::math::step(float3(.5), float3(fg_)));\n')
         else:
-            file.write(INDENT + 'mask = ::math::step(' + outputType + '(.5), fg_);\n')
+            file.write(f'{INDENT}mask = ::math::step({outputType}' + '(.5), fg_);\n')
         file.write(INDENT + 'overlayval = ::math::lerp(lower, upper, mask);\n')
-        file.write(INDENT + 'return ' + outputType + '(::math::lerp(mxp_bg, overlayval, mxp_mix));\n')
+        file.write(
+            f'{INDENT}return {outputType}'
+            + '(::math::lerp(mxp_bg, overlayval, mxp_mix));\n'
+        )
 
 def _writeDisjointOver(file, outputType):
     if outputType == 'float2':
@@ -298,7 +350,6 @@ def _writeDisjointOver(file, outputType):
         file.write(INDENT + 'result.y = ::math::min(summedAlpha, 1.0);\n')
         file.write(INDENT + 'result.x = result.x * mxp_mix + (1.0 - mxp_mix) * mxp_bg.x;\n')
         file.write(INDENT + 'result.y = result.y * mxp_mix + (1.0 - mxp_mix) * mxp_bg.y;\n')
-        file.write(INDENT + 'return result;\n')
     else:
         file.write(INDENT + 'color4 result;\n')
         file.write(INDENT + 'float summedAlpha = mxp_fg.a + mxp_bg.a;\n')
@@ -320,7 +371,8 @@ def _writeDisjointOver(file, outputType):
         file.write(INDENT + 'result.a = ::math::min(summedAlpha, 1.0);\n')
         file.write(INDENT + 'result.rgb = result.rgb * mxp_mix + (1.0 - mxp_mix) * mxp_bg.rgb;\n')
         file.write(INDENT + 'result.a = result.a * mxp_mix + (1.0 - mxp_mix) * mxp_bg.a;\n')
-        file.write(INDENT + 'return result;\n')
+
+    file.write(INDENT + 'return result;\n')
 
 def main():
 

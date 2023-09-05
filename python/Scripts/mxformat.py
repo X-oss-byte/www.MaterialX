@@ -14,7 +14,7 @@ def main():
     parser.add_argument(dest="inputFolder", help="An input folder to scan for MaterialX documents.")
     opts = parser.parse_args()
 
-    validDocs = dict()
+    validDocs = {}
     for root, dirs, files in os.walk(opts.inputFolder):
         for file in files:
             if file.endswith('.mtlx'):
@@ -23,22 +23,22 @@ def main():
                 try:
                     readOptions = mx.XmlReadOptions()
                     readOptions.readComments = True
-                    readOptions.readNewlines = True    
+                    readOptions.readNewlines = True
                     readOptions.upgradeVersion = opts.upgrade
                     try:
                         mx.readFromXmlFile(doc, filename, mx.FileSearchPath(), readOptions)
                     except Exception as err:
-                        print('Skipping "' + file + '" due to exception: ' + str(err))
+                        print(f'Skipping "{file}" due to exception: {str(err)}')
                         continue
                     validDocs[filename] = doc
                 except mx.Exception:
                     pass
 
     if not validDocs:
-        print('No MaterialX documents were found in "%s"' % (opts.inputFolder))
+        print(f'No MaterialX documents were found in "{opts.inputFolder}"')
         return
 
-    print('Found %s MaterialX files in "%s"' % (len(validDocs), opts.inputFolder))
+    print(f'Found {len(validDocs)} MaterialX files in "{opts.inputFolder}"')
 
     mxVersion = mx.getVersionIntegers()
 
@@ -48,7 +48,7 @@ def main():
         else:
             question = 'Would you like to reformat all %i documents in place (y/n)?' % len(validDocs)
         answer = input(question)
-        if answer != 'y' and answer != 'Y':
+        if answer not in ['y', 'Y']:
             return
 
     for (filename, doc) in validDocs.items():

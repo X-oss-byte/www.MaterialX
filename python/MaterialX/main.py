@@ -21,35 +21,31 @@ def _isA(self, elementClass, category = ''):
        matches are required."""
     if not isinstance(self, elementClass):
         return False
-    if category and self.getCategory() != category:
-        return False
-    return True
+    return not category or self.getCategory() == category
 
 def _addChild(self, elementClass, name, typeString = ''):
     "Add a child element of the given subclass, name, and optional type string."
-    method = getattr(self.__class__, "_addChild" + elementClass.__name__)
+    method = getattr(self.__class__, f"_addChild{elementClass.__name__}")
     return method(self, name, typeString)
 
 def _getChild(self, name):
     "Return the child element, if any, with the given name."
-    if (name == None):
-        return None
-    return self._getChild(name)
+    return None if name is None else self._getChild(name)
 
 def _getChildOfType(self, elementClass, name):
     "Return the child element, if any, with the given name and subclass."
-    method = getattr(self.__class__, "_getChildOfType" + elementClass.__name__)
+    method = getattr(self.__class__, f"_getChildOfType{elementClass.__name__}")
     return method(self, name)
 
 def _getChildrenOfType(self, elementClass):
     """Return a list of all child elements that are instances of the given type.
        The returned list maintains the order in which children were added."""
-    method = getattr(self.__class__, "_getChildrenOfType" + elementClass.__name__)
+    method = getattr(self.__class__, f"_getChildrenOfType{elementClass.__name__}")
     return method(self)
 
 def _removeChildOfType(self, elementClass, name):
     "Remove the typed child element, if any, with the given name."
-    method = getattr(self.__class__, "_removeChildOfType" + elementClass.__name__)
+    method = getattr(self.__class__, f"_removeChildOfType{elementClass.__name__}")
     method(self, name)
 
 Element.isA = _isA
@@ -66,7 +62,7 @@ Element.removeChildOfType = _removeChildOfType
 
 def _setValue(self, value, typeString = ''):
     "Set the typed value of an element."
-    method = getattr(self.__class__, "_setValue" + getTypeString(value))
+    method = getattr(self.__class__, f"_setValue{getTypeString(value)}")
     method(self, value, typeString)
 
 def _getValue(self):
@@ -91,7 +87,7 @@ ValueElement.getDefaultValue = _getDefaultValue
 def _setInputValue(self, name, value, typeString = ''):
     """Set the typed value of an input by its name, creating a child element
        to hold the input if needed."""
-    method = getattr(self.__class__, "_setInputValue" + getTypeString(value))
+    method = getattr(self.__class__, f"_setInputValue{getTypeString(value)}")
     return method(self, name, value, typeString)
 
 def _getInputValue(self, name, target = ''):
@@ -109,12 +105,12 @@ def _addParameter(self, name):
 def _getParameters(self):
     """(Deprecated) Return a vector of all Parameter elements."""
     warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
-    return list()
+    return []
 
 def _getActiveParameters(self):
     """(Deprecated) Return a vector of all parameters belonging to this interface, taking inheritance into account."""
     warnings.warn("This function is deprecated; parameters have been replaced with uniform inputs in 1.38.", DeprecationWarning, stacklevel = 2)
-    return list()
+    return []
 
 def _setParameterValue(self, name, value, typeString = ''):
     """(Deprecated) Set the typed value of a parameter by its name."""
@@ -148,12 +144,12 @@ def _addBindParam(self, name, type = DEFAULT_TYPE_STRING):
 def _getBindParams(self):
     """(Deprecated) Return a vector of all BindParam elements in this shader reference."""
     warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
-    return list()
+    return []
 
 def _getBindTokens(self):
     """(Deprecated) Return a vector of all BindToken elements in this shader reference."""
     warnings.warn("This function is deprecated; shader references have been replaced with shader nodes in 1.38.", DeprecationWarning, stacklevel = 2)
-    return list()
+    return []
 
 InterfaceElement.setInputValue = _setInputValue
 InterfaceElement.getInputValue = _getInputValue
@@ -207,7 +203,7 @@ Node.getActiveShaderRefs = _getActiveShaderRefs
 def _setPropertyValue(self, name, value, typeString = ''):
     """Set the typed value of a property by its name, creating a child element
        to hold the property if needed."""
-    method = getattr(self.__class__, "_setPropertyValue" + getTypeString(value))
+    method = getattr(self.__class__, f"_setPropertyValue{getTypeString(value)}")
     return method(self, name, value, typeString)
 
 def _getPropertyValue(self, name, target = ''):
@@ -227,7 +223,7 @@ PropertySet.getPropertyValue = _getPropertyValue
 def _setGeomPropValue(self, name, value, typeString = ''):
     """Set the value of a geomprop by its name, creating a child element
        to hold the geomprop if needed."""
-    method = getattr(self.__class__, "_setGeomPropValue" + getTypeString(value))
+    method = getattr(self.__class__, f"_setGeomPropValue{getTypeString(value)}")
     return method(self, name, value, typeString)
 
 def _addGeomAttr(self, name):

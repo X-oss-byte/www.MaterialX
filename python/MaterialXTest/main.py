@@ -300,13 +300,13 @@ class TestMaterialX(unittest.TestCase):
 
         # Validate the document.
         valid, message = doc.validate()
-        self.assertTrue(valid, 'Document returned validation warnings: ' + message)
+        self.assertTrue(valid, f'Document returned validation warnings: {message}')
 
         # Disconnect outputs from sources.
         output1.setConnectedNode(None)
         output2.setConnectedNode(None)
-        self.assertTrue(output1.getConnectedNode() == None)
-        self.assertTrue(output2.getConnectedNode() == None)
+        self.assertTrue(output1.getConnectedNode() is None)
+        self.assertTrue(output2.getConnectedNode() is None)
 
     def test_TraverseGraph(self):
         # Create a document.
@@ -341,13 +341,9 @@ class TestMaterialX(unittest.TestCase):
 
         # Validate the document.
         valid, message = doc.validate()
-        self.assertTrue(valid, 'Document returned validation warnings: ' + message)
+        self.assertTrue(valid, f'Document returned validation warnings: {message}')
 
-        # Traverse the document tree (implicit iterator).
-        nodeCount = 0
-        for elem in doc.traverseTree():
-            if elem.isA(mx.Node):
-                nodeCount += 1
+        nodeCount = sum(1 for elem in doc.traverseTree() if elem.isA(mx.Node))
         self.assertTrue(nodeCount == 7)
 
         # Traverse the document tree (explicit iterator).
@@ -446,7 +442,7 @@ class TestMaterialX(unittest.TestCase):
             doc = mx.createDocument()
             mx.readFromXmlFile(doc, filename, _searchPath)
             valid, message = doc.validate()
-            self.assertTrue(valid, filename + ' returned validation warnings: ' + message)
+            self.assertTrue(valid, f'{filename} returned validation warnings: {message}')
 
             # Copy the document.
             copiedDoc = doc.copy()
@@ -482,7 +478,7 @@ class TestMaterialX(unittest.TestCase):
             writeOptions.elementPredicate = skipLibraryElement
             result = mx.writeToXmlString(doc2, writeOptions)
             doc3 = mx.createDocument()
-            mx.readFromXmlString(doc3, result)    
+            mx.readFromXmlString(doc3, result)
             self.assertTrue(len(doc3.getNodeDefs()) == 0)   
 
         # Read the same document twice, and verify that duplicate elements

@@ -49,8 +49,7 @@ def main():
                 searchPath.append(path)
     if opts.libraries:
         for libraryList in opts.libraries:
-            for library in libraryList:
-                libraryFolders.append(library)
+            libraryFolders.extend(iter(libraryList))
     libraryFolders.extend(mx.getDefaultDataLibraryFolders())
     mx.loadLibraries(libraryFolders, searchPath, stdlib)
     doc.importLibrary(stdlib)
@@ -89,7 +88,7 @@ def main():
     except mx.Exception as err:
         print(err)
         sys.exit(0)
-        
+
     # Bake translated materials to flat textures.
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
     if platform == "darwin" and not opts.useGlslBackend:

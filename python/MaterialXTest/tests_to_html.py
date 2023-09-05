@@ -16,13 +16,13 @@ def createDiff(image1Path, image2Path, imageDiffPath):
     try:
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
-        
+
         if not os.path.exists(image1Path):
-            print ("Image diff input missing: " + image1Path)
+            print(f"Image diff input missing: {image1Path}")
             return
-        
+
         if not os.path.exists(image2Path):
-            print ("Image diff input missing: " + image2Path)
+            print(f"Image diff input missing: {image2Path}")
             return
 
         image1 = Image.open(image1Path).convert('RGB')
@@ -32,7 +32,7 @@ def createDiff(image1Path, image2Path, imageDiffPath):
     except Exception:
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
-        print ("Failed to create image diff between: " + image1Path + ", " + image2Path)
+        print(f"Failed to create image diff between: {image1Path}, {image2Path}")
 
 def main(args=None):
 

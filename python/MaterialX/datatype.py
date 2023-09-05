@@ -45,7 +45,7 @@ def getTypeString(value):
         if len(value):
             elemType = type(value[0])
             if elemType in _typeToName:
-                return _typeToName[elemType] + 'array'
+                return f'{_typeToName[elemType]}array'
         return 'stringarray'
     return None
 
@@ -61,7 +61,7 @@ def getValueString(value):
     typeString = getTypeString(value)
     if not typeString:
         return None
-    method = globals()['TypedValue_' + typeString].createValue
+    method = globals()[f'TypedValue_{typeString}'].createValue
     return method(value).getValueString()
 
 def createValueFromStrings(valueString, typeString):
@@ -74,9 +74,7 @@ def createValueFromStrings(valueString, typeString):
            createValueFromStrings('0.1, 0.2, 0.3', 'color3') -> mx.Color3(0.1, 0.2, 0.3)"""
 
     valueObj = Value.createValueFromStrings(valueString, typeString)
-    if not valueObj:
-        return None
-    return valueObj.getData()
+    return None if not valueObj else valueObj.getData()
 
 
 def isColorType(t):

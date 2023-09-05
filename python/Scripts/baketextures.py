@@ -45,8 +45,7 @@ def main():
                 searchPath.append(path)
     if opts.libraries:
         for libraryList in opts.libraries:
-            for library in libraryList:
-                libraryFolders.append(library)
+            libraryFolders.extend(iter(libraryList))
     libraryFolders.extend(mx.getDefaultDataLibraryFolders())
     mx.loadLibraries(libraryFolders, searchPath, stdlib)
     doc.importLibrary(stdlib)
@@ -57,13 +56,13 @@ def main():
         print(msg)
 
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
-    
-    
+
+
     if platform == "darwin" and not opts.useGlslBackend:
         baker = mx_render_msl.TextureBaker.create(opts.width, opts.height, baseType)
     else:
         baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
-    
+
     if opts.average:
         baker.setAverageImages(True)
     baker.writeDocumentPerMaterial(opts.writeDocumentPerMaterial)

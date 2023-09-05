@@ -69,10 +69,9 @@ class TestGenShader(unittest.TestCase):
         self.assertTrue(outputs.size() == 1)
         self.assertTrue(outputs[0].getName() == output.getName())
 
-        file = open(shader.getName() + "_complete.osl", "w+")
-        file.write(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE))
-        file.close()
-        os.remove(shader.getName() + "_complete.osl");
+        with open(f"{shader.getName()}_complete.osl", "w+") as file:
+            file.write(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE))
+        os.remove(f"{shader.getName()}_complete.osl");
 
         # Test generator with reduced mode
         context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
@@ -88,10 +87,9 @@ class TestGenShader(unittest.TestCase):
         self.assertTrue(outputs.size() == 1)
         self.assertTrue(outputs[0].getName() == output.getName())
 
-        file = open(shader.getName() + "_reduced.osl", "w+")
-        file.write(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE))
-        file.close()
-        os.remove(shader.getName() + "_reduced.osl");
+        with open(f"{shader.getName()}_reduced.osl", "w+") as file:
+            file.write(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE))
+        os.remove(f"{shader.getName()}_reduced.osl");
 
         # Define a custom attribute
         customAttribute = doc.addAttributeDef("AD_attribute_node_name");

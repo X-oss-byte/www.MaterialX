@@ -26,7 +26,7 @@ def getColorSpaces(cms = 'ocio', config = None):
        config are used."""
 
     if cms != 'ocio':
-        raise ValueError('Color management system is unrecognized: ' + cms)
+        raise ValueError(f'Color management system is unrecognized: {cms}')
     if config is None:
         config = getDefaultOCIOConfig()
 
@@ -39,7 +39,7 @@ def transformColor(color, sourceColorSpace, destColorSpace, cms = 'ocio', config
        config are used."""
 
     if cms != 'ocio':
-        raise ValueError('Color management system is unrecognized: ' + cms)
+        raise ValueError(f'Color management system is unrecognized: {cms}')
     if config is None:
         config = getDefaultOCIOConfig()
 
